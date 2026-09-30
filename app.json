@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Au Menu de Luciole",
+    "slug": "au-menu-de-luciole",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "backgroundColor": "#EEF2EA",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lemercier.aumenudeluciole"
+    },
+    "android": {
+      "package": "com.lemercier.aumenudeluciole",
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1E3328"
+      }
+    },
+    "icon": "./assets/icon.png",
+    "plugins": [
+      "./plugins/withReleaseSigning"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+.DS_Store
+node_modules/
+.expo/
+dist/
+# Projets natifs générés par « expo prebuild »
+ios/
+android/
+build/
+# Clés et fichiers générés
+*.jks
+*.keystore
+*.ipa
+*.apk
+Payload/
+*.log
