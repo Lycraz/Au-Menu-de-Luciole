@@ -10,6 +10,9 @@ annotate() { # annotate <fichier log> <titre>
   echo "----- fin de $1 -----"; tail -80 "$1"
 }
 
+# Utilise le Xcode le plus récent installé (Expo SDK 57 demande Xcode 26.4 ou plus)
+LATEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -Ev "beta|Beta|RC" | sort -V | tail -1)
+[ -n "$LATEST" ] && sudo xcode-select -s "$LATEST/Contents/Developer"
 xcodebuild -version | head -1
 
 # Xcode 26.2/26.3 refuse deux annotations inutiles d'expo-modules-jsi (corrigé dans Xcode 26.4+).
