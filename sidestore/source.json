@@ -1,0 +1,41 @@
+{
+  "name": "Au Menu de Luciole",
+  "subtitle": "Menus de la semaine et liste de courses",
+  "iconURL": "https://raw.githubusercontent.com/Lycraz/Au-Menu-de-Luciole/main/sidestore/icon.png",
+  "website": "https://github.com/Lycraz/Au-Menu-de-Luciole",
+  "tintColor": "#2F6B4A",
+  "nsfw": false,
+  "news": [],
+  "apps": [
+    {
+      "name": "Au Menu de Luciole",
+      "bundleIdentifier": "com.lemercier.aumenudeluciole",
+      "developerName": "Lycraz",
+      "subtitle": "Menus de la semaine et liste de courses",
+      "localizedDescription": "Planifie les repas de la semaine en quelques touches : l'app choisit des plats simples, vérifie la fraîcheur des produits et prépare la liste de courses rayon par rayon.",
+      "iconURL": "https://raw.githubusercontent.com/Lycraz/Au-Menu-de-Luciole/main/sidestore/icon.png",
+      "tintColor": "#2F6B4A",
+      "category": "lifestyle",
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      },
+      "versions": [
+        {
+          "version": "1.0.2",
+          "buildVersion": "2",
+          "date": "2026-09-30T21:32:54+00:00",
+          "localizedDescription": "fixe bug",
+          "downloadURL": "https://github.com/Lycraz/Au-Menu-de-Luciole/releases/download/v1.0.2/AuMenuDeLuciole.ipa",
+          "size": 556,
+          "minOSVersion": "15.1"
+        }
+      ],
+      "version": "1.0.2",
+      "versionDate": "2026-09-30T21:32:54+00:00",
+      "versionDescription": "fixe bug",
+      "downloadURL": "https://github.com/Lycraz/Au-Menu-de-Luciole/releases/download/v1.0.2/AuMenuDeLuciole.ipa",
+      "size": 556
+    }
+  ]
+}
