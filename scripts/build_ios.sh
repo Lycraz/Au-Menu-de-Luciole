@@ -10,6 +10,16 @@ annotate() { # annotate <fichier log> <titre>
   echo "----- fin de $1 -----"; tail -80 "$1"
 }
 
+xcodebuild -version | head -1
+
+# Xcode 26.2/26.3 refuse deux annotations inutiles d'expo-modules-jsi (corrigé dans Xcode 26.4+).
+# On les retire : la classe est déjà déclarée SWIFT_SHARED_REFERENCE, ça ne change rien au comportement.
+H=node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h
+if [ -f "$H" ] && grep -q SWIFT_RETURNS_RETAINED "$H"; then
+  sed -i '' 's/[[:space:]]*SWIFT_RETURNS_RETAINED//g' "$H"
+  echo "Correctif appliqué : $H"
+fi
+
 node scripts/set_version.js "$VERSION" "$BUILD"
 
 if ! npx expo prebuild --platform ios --clean > prebuild.log 2>&1; then
