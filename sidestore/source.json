@@ -22,6 +22,15 @@
       },
       "versions": [
         {
+          "version": "1.0.6",
+          "buildVersion": "6",
+          "date": "2026-10-01T21:29:45+00:00",
+          "localizedDescription": "new maj",
+          "downloadURL": "https://github.com/Lycraz/Au-Menu-de-Luciole/releases/download/v1.0.6/AuMenuDeLuciole.ipa",
+          "size": 7421197,
+          "minOSVersion": "15.1"
+        },
+        {
           "version": "1.0.5",
           "buildVersion": "5",
           "date": "2026-09-30T22:10:40+00:00",
@@ -40,11 +49,11 @@
           "minOSVersion": "15.1"
         }
       ],
-      "version": "1.0.5",
-      "versionDate": "2026-09-30T22:10:40+00:00",
-      "versionDescription": "fix",
-      "downloadURL": "https://github.com/Lycraz/Au-Menu-de-Luciole/releases/download/v1.0.5/AuMenuDeLuciole.ipa",
-      "size": 7389019
+      "version": "1.0.6",
+      "versionDate": "2026-10-01T21:29:45+00:00",
+      "versionDescription": "new maj",
+      "downloadURL": "https://github.com/Lycraz/Au-Menu-de-Luciole/releases/download/v1.0.6/AuMenuDeLuciole.ipa",
+      "size": 7421197
     }
   ]
 }
