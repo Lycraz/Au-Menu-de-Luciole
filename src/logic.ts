@@ -1,5 +1,6 @@
 // Logique pure : planning, fraîcheur, listes de courses. Aucune dépendance React.
-import { CATS, DAYS, DS, FISH, ING, MEALS, MEAL_KEYS, RBY, RECIPES, type CatKey, type MealKey, type Recipe } from './data';
+import { CATS, DAYS, DS, FISH, MEALS, MEAL_KEYS, type CatKey, type Ingredient, type MealKey, type Recipe } from './data';
+import { allRecipes, ingOf, isStaple, recipeOf } from './catalog';
 
 export type Tab = 'semaine' | 'courses' | 'recettes';
 export type Extra = { t: string; c: boolean };
@@ -13,7 +14,15 @@ export type AppState = {
   extras: Extra[];
   fridge: string[];
   tab: Tab;
+  /** Recettes créées ou importées */
+  myRecipes: Recipe[];
+  /** Ingrédients inconnus du catalogue, ajoutés par les recettes perso (id "u:…") */
+  myIng: Record<string, Ingredient>;
+  drive: DriveSettings;
 };
+
+export type DriveKey = 'leclerc' | 'carrefour' | 'auchan' | 'intermarche' | 'autre';
+export type DriveSettings = { store: DriveKey | null; leclercUrl: string; customUrl: string };
 
 export const DEFAULT_STATE: AppState = {
   persons: 2,
@@ -24,6 +33,9 @@ export const DEFAULT_STATE: AppState = {
   extras: [],
   fridge: [],
   tab: 'semaine',
+  myRecipes: [],
+  myIng: {},
+  drive: { store: null, leclercUrl: '', customUrl: '' },
 };
 
 export const sortedShop = (S: AppState) => [...S.shop].sort((a, b) => a - b);
@@ -53,8 +65,8 @@ export function fits(S: AppState, r: Recipe, d: number): boolean {
   const lt = lastTrip(S, d);
   if (!lt) return true;
   return r.i.every(([id]) => {
-    const g = ING[id];
-    return g[4] === 'j' || g[2] >= 60 || g[2] >= lt.gap;
+    const g = ingOf(id);
+    return g[4] === 'j' || g[4] === 's' || g[2] >= 60 || g[2] >= lt.gap;
   });
 }
 
@@ -63,17 +75,22 @@ export const TAG_LABEL: Record<Tag, string> = { rapide: '⚡ Rapide', vege: '�
 export function tags(r: Recipe): Tag[] {
   const t: Tag[] = [];
   if (r.t <= 15) t.push('rapide');
-  if (!r.i.some(([id]) => ING[id][4] === 'm')) t.push('vege');
+  if (!r.i.some(([id]) => ingOf(id)[4] === 'm')) t.push('vege');
   if (r.i.some(([id]) => FISH.includes(id))) t.push('poisson');
   return t;
 }
 
 export function fmt(id: string, q: number): string {
-  const u = ING[id][3];
+  const u = ingOf(id)[3];
   if (u === 'g') return q >= 1000 ? (Math.round(q / 100) / 10 + ' kg').replace('.', ',') : Math.max(10, Math.round(q / 10) * 10) + ' g';
   if (u === 'cl') return Math.round(q) + ' cl';
+  if (u === 'c. à s.' || u === 'c. à c.') {
+    const v = Math.round(q * 2) / 2;
+    return String(v).replace('.', ',') + ' ' + u;
+  }
   const n = Math.ceil(q - 0.001);
   if (u === 'pc') return String(n);
+  if (/[ .]/.test(u) || /[sx]$/.test(u)) return n + ' ' + u;
   return n + ' ' + u + (n > 1 ? 's' : '');
 }
 
@@ -84,7 +101,8 @@ export function planEntries(S: AppState): PlanEntry[] {
     for (const m of activeMeals(S)) {
       const k = d + '-' + m;
       const r = S.plan[k];
-      if (r && RBY[r]) out.push({ d, m, r: RBY[r], k });
+      const rec = r ? recipeOf(r) : undefined;
+      if (rec) out.push({ d, m, r: rec, k });
     }
   return out;
 }
@@ -111,7 +129,8 @@ export function buildLists(S: AppState): { trips: Trip[]; warns: FreshWarning[] 
   for (const { d, m, r } of planEntries(S)) {
     const lt = lastTrip(S, d)!;
     for (const [id, q] of r.i) {
-      const g = ING[id];
+      if (isStaple(id)) continue;
+      const g = ingOf(id);
       const long = g[2] >= 60;
       const s = long ? sh[0] : lt.s;
       if (!long && g[4] !== 'j' && lt.gap > g[2]) warns.push({ id, r, d, m, s: lt.s, gap: lt.gap });
@@ -130,17 +149,17 @@ export function tripByCategory(t: Trip): [CatKey, string, TripItem[]][] {
   const out: [CatKey, string, TripItem[]][] = [];
   for (const [c, label] of CATS) {
     const its = Object.values(t.items)
-      .filter((it) => ING[it.id][1] === c)
-      .sort((a, b) => ING[a.id][0].localeCompare(ING[b.id][0]));
+      .filter((it) => ingOf(it.id)[1] === c)
+      .sort((a, b) => ingOf(a.id)[0].localeCompare(ingOf(b.id)[0]));
     if (its.length) out.push([c, label, its]);
   }
   return out;
 }
 
 export function pickRandom(S: AppState, d: number, used: Set<string>, rand = Math.random): string {
-  let c = RECIPES.filter((r) => !used.has(r.id) && fits(S, r, d));
-  if (!c.length) c = RECIPES.filter((r) => fits(S, r, d));
-  if (!c.length) c = RECIPES;
+  let c = allRecipes().filter((r) => !used.has(r.id) && fits(S, r, d));
+  if (!c.length) c = allRecipes().filter((r) => fits(S, r, d));
+  if (!c.length) c = allRecipes();
   return c[Math.floor(rand() * c.length)].id;
 }
 
@@ -165,7 +184,7 @@ export function fillEmpty(S: AppState, rand = Math.random): { plan: Record<strin
 export const fridgeMatches = (S: AppState, r: Recipe) => S.fridge.filter((id) => r.i.some(([x]) => x === id)).length;
 
 export function filterRecipes(S: AppState, filter: 'tout' | Tag, q: string): Recipe[] {
-  let list = RECIPES.filter((r) => (filter === 'tout' || tags(r).includes(filter)) && r.n.toLowerCase().includes(q.toLowerCase()));
+  let list = allRecipes().filter((r) => (filter === 'tout' || tags(r).includes(filter)) && r.n.toLowerCase().includes(q.toLowerCase()));
   if (S.fridge.length)
     list = list
       .map((r) => [r, fridgeMatches(S, r) / r.i.length] as const)
@@ -180,7 +199,7 @@ export function listText(S: AppState): string {
   for (const tr of trips) {
     if (!Object.keys(tr.items).length) continue;
     t += `🛒 ${DAYS[tr.s]}\n`;
-    for (const [, l, its] of tripByCategory(tr)) t += `${l}\n` + its.map((it) => `- ${ING[it.id][0]} : ${fmt(it.id, it.q)}`).join('\n') + '\n';
+    for (const [, l, its] of tripByCategory(tr)) t += `${l}\n` + its.map((it) => `- ${ingOf(it.id)[0]} : ${fmt(it.id, it.q)}`).join('\n') + '\n';
     t += '\n';
   }
   const ex = S.extras.filter((x) => !x.c);

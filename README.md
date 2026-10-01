@@ -5,6 +5,8 @@ Application iPhone, iPad et Android. Elle planifie les repas de la semaine et pr
 - **Semaine** : jours de courses, nombre de personnes, repas du midi et du soir, remplissage au hasard, alertes de fraîcheur.
 - **Courses** : une liste par jour de courses, avec les quantités ajustées, tes propres articles, et la liste à copier.
 - **Recettes** : 23 plats simples, avec des filtres (rapide, végé, poisson) et un tri selon ce que tu as déjà.
+- **Mes recettes** : crée tes recettes, ou importe-les depuis un lien (Marmiton, 750g…), un texte copié-collé ou un message partagé par un autre téléphone. Elles entrent dans le planning et la liste de courses comme les autres.
+- **Drive** : choisis E.Leclerc, Carrefour, Auchan ou Intermarché ; un bouton 🔎 à côté de chaque article ouvre la recherche dans ton drive.
 
 L'app est faite avec [Expo](https://expo.dev) (React Native + TypeScript). Les données restent sur le téléphone.
 
@@ -55,7 +57,7 @@ Dans Obtainium, touche **Ajouter une app** et colle `https://github.com/Lycraz/a
 
 ```bash
 npm install
-npm run setup     # installe les versions compatibles avec Expo
+npm run fix-deps  # optionnel : réaligne les versions sur le SDK Expo
 npm test          # tests de la logique (planning, fraîcheur, listes)
 npm run typecheck
 ```
@@ -66,7 +68,10 @@ npm run typecheck
 App.tsx                  coque : onglets, défilement, message temporaire
 src/data.ts              ingrédients et recettes
 src/logic.ts             logique pure (listes de courses, fraîcheur, tirage au hasard)
-src/logic.test.ts        tests
+src/catalog.ts           recettes de base + recettes perso
+src/import.ts            import (lien, texte, partage) et éditeur
+src/drive.ts             liens de recherche des drives
+src/*.test.ts            tests
 src/store.tsx            état et sauvegarde
 src/theme.ts             couleurs clair / sombre
 src/components/          UI réutilisable, fiches recette, sélecteur de plat

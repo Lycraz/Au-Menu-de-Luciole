@@ -17,7 +17,10 @@ export function RecipeCard({ r, onPress, bad, compact, style }: { r: Recipe; onP
     >
       <Text style={st.em}>{r.e}</Text>
       <View style={{ flex: 1 }}>
-        <Text style={{ color: c.ink, fontWeight: '600', fontSize: 16 }}>{r.n}</Text>
+        <Text style={{ color: c.ink, fontWeight: '600', fontSize: 16 }}>
+          {r.n}
+          {r.custom ? <Text style={{ color: c.accent, fontSize: 13 }}>{'  ⭐'}</Text> : null}
+        </Text>
         <Text style={{ color: c.muted, fontSize: 13 }}>{meta}</Text>
         {!compact && S.fridge.length ? (
           <Text style={{ color: c.leaf, fontSize: 13, fontWeight: '600' }}>

@@ -1,4 +1,4 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { ReactNode } from 'react';
 import { useColors } from '../theme';
@@ -56,12 +56,12 @@ export function Card({ children, style }: { children: ReactNode; style?: StylePr
 }
 
 /** Feuille modale qui monte du bas (pageSheet sur iOS/iPad). */
-export function Sheet({ visible, onClose, title, icon, children }: { visible: boolean; onClose: () => void; title: string; icon?: string; children: ReactNode }) {
+export function Sheet({ visible, onClose, title, icon, children, scrollKey }: { visible: boolean; onClose: () => void; title: string; icon?: string; children: ReactNode; scrollKey?: string }) {
   const c = useColors();
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={[s.sheetHead, { borderBottomColor: c.line }]}>
           {icon ? <Text style={{ fontSize: 34 }}>{icon}</Text> : null}
           <Text style={[s.sheetTitle, { color: c.ink }]} accessibilityRole="header">{title}</Text>
@@ -69,10 +69,10 @@ export function Sheet({ visible, onClose, title, icon, children }: { visible: bo
             <Text style={{ color: c.muted, fontSize: 20 }}>✕</Text>
           </Pressable>
         </View>
-        <ScrollView contentContainerStyle={[s.sheetBody, { paddingBottom: 24 + insets.bottom }]} keyboardShouldPersistTaps="handled">
+        <ScrollView key={scrollKey} contentContainerStyle={[s.sheetBody, { paddingBottom: 24 + insets.bottom }]} keyboardShouldPersistTaps="handled">
           {children}
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -1,12 +1,14 @@
 import * as Clipboard from 'expo-clipboard';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { DAYS, DS, ING, MEALS } from '../data';
+import { DAYS, DS, MEALS } from '../data';
+import { ingOf } from '../catalog';
 import { buildLists, coverLabel, fmt, listText, tripByCategory } from '../logic';
 import { useStore } from '../store';
 import { useColors, type Colors } from '../theme';
 import { useSheets } from '../components/sheets';
 import { Btn, Card, H1, Row, Sub } from '../components/ui';
+import { DrivePanel, DriveSearch } from '../components/Drive';
 
 function Check({ on, c }: { on: boolean; c: Colors }) {
   return (
@@ -70,7 +72,7 @@ export function ShopScreen() {
           <Text style={{ color: c.warn, fontWeight: '800' }}>⚠️ Fraîcheur</Text>
           {warns.map((w, i) => (
             <Text key={i} style={{ color: c.warn, marginTop: 4 }}>
-              {ING[w.id][0]} pour « {w.r.n} » ({DS[w.d]} {MEALS[w.m].toLowerCase()}) : acheté {DAYS[w.s].toLowerCase()}, {w.gap} jours avant.
+              {ingOf(w.id)[0]} pour « {w.r.n} » ({DS[w.d]} {MEALS[w.m].toLowerCase()}) : acheté {DAYS[w.s].toLowerCase()}, {w.gap} jours avant.
             </Text>
           ))}
           <Text style={{ color: c.warn, marginTop: 4 }}>Ajoute une course plus proche de ces repas, ou déplace-les juste après une course.</Text>
@@ -85,6 +87,8 @@ export function ShopScreen() {
         </View>
       ) : null}
 
+      {any ? <DrivePanel /> : null}
+
       {trips.map((t, i) => {
         if (!Object.keys(t.items).length) return null;
         return (
@@ -98,7 +102,7 @@ export function ShopScreen() {
               <View key={cat}>
                 <Text style={[st.cat, { color: c.leaf }]}>{label}</Text>
                 {its.map((it, j) => {
-                  const g = ING[it.id];
+                  const g = ingOf(it.id);
                   const key = t.s + '-' + it.id;
                   const done = !!S.checked[key];
                   const days = [...it.days].sort((a, b) => a - b).map((d) => DS[d]).join(', ');
@@ -120,6 +124,7 @@ export function ShopScreen() {
                         {g[2] < 60 ? <Text style={{ color: c.muted, fontSize: 12 }}>pour {days}</Text> : null}
                       </View>
                       <Text style={{ color: c.ink, fontWeight: '600', opacity: done ? 0.4 : 1 }}>{fmt(it.id, it.q)}</Text>
+                      {!done ? <DriveSearch name={g[0]} /> : null}
                     </Pressable>
                   );
                 })}
@@ -143,6 +148,7 @@ export function ShopScreen() {
               <Check on={x.c} c={c} />
               <Text style={{ flex: 1, color: c.ink, fontSize: 16, opacity: x.c ? 0.4 : 1, textDecorationLine: x.c ? 'line-through' : 'none' }}>{x.t}</Text>
             </Pressable>
+            {!x.c ? <DriveSearch name={x.t} /> : null}
             <Pressable hitSlop={10} accessibilityLabel="Supprimer" onPress={() => set((s) => ({ extras: s.extras.filter((_, k) => k !== i) }))}>
               <Text style={{ color: c.muted, fontSize: 18, paddingHorizontal: 6 }}>✕</Text>
             </Pressable>

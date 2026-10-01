@@ -2,9 +2,9 @@
 
 export type MealKey = 'midi' | 'soir';
 export type CatKey = 'fl' | 'viande' | 'frais' | 'boul' | 'epi' | 'surg';
-/** [nom, rayon, jours de conservation, unité, flag] — flag 'm' = viande/poisson, 'j' = à acheter le jour même */
-export type Ingredient = [string, CatKey, number, string, ('m' | 'j')?];
-export type Recipe = { id: string; n: string; e: string; t: number; i: [string, number][]; s: string[] };
+/** [nom, rayon, jours de conservation, unité, flag] — flag 'm' = viande/poisson, 'j' = à acheter le jour même, 's' = placard (pas dans la liste) */
+export type Ingredient = [string, CatKey, number, string, ('m' | 'j' | 's')?];
+export type Recipe = { id: string; n: string; e: string; t: number; i: [string, number][]; s: string[]; custom?: boolean; src?: string };
 
 export const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 export const DS = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'];

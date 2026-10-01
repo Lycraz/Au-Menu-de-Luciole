@@ -7,7 +7,7 @@
     "start": "expo start",
     "ios": "expo run:ios",
     "android": "expo run:android",
-    "test": "tsx --test src/*.test.ts",
+    "test": "tsx --test src/logic.test.ts src/import.test.ts src/drive.test.ts",
     "typecheck": "tsc --noEmit",
     "setup": "echo \"Versions fixées dans package.json (Expo SDK 57)\"",
     "fix-deps": "expo install --fix"

@@ -1,5 +1,6 @@
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { DS, MEALS, RBY } from '../data';
+import { DS, MEALS } from '../data';
+import { recipeOf } from '../catalog';
 import { activeMeals, capitalize, fillEmpty, planEntries, sortedShop, warnKeys } from '../logic';
 import { useStore } from '../store';
 import { useColors } from '../theme';
@@ -99,7 +100,7 @@ export function WeekScreen() {
               {am.map((m) => {
                 const k = d + '-' + m;
                 const v = S.plan[k];
-                const r = v && v !== 'restes' ? RBY[v] : undefined;
+                const r = v && v !== 'restes' ? recipeOf(v) : undefined;
                 const empty = !v || (v !== 'restes' && !r);
                 return (
                   <Pressable

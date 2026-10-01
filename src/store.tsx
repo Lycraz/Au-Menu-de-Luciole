@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { setUserData } from './catalog';
+import type { Ingredient, Recipe } from './data';
 import { DEFAULT_STATE, type AppState } from './logic';
 
 const KEY = 'au-menu-v1';
@@ -10,6 +12,8 @@ type Store = {
   set: (patch: Partial<AppState> | ((s: AppState) => Partial<AppState>)) => void;
   toast: (msg: string) => void;
   toastMsg: string | null;
+  saveRecipe: (r: Recipe, newIng: Record<string, Ingredient>) => void;
+  deleteRecipe: (id: string) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -23,7 +27,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(KEY)
       .then((raw) => {
-        if (raw) setS({ ...DEFAULT_STATE, ...JSON.parse(raw) });
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        setS({ ...DEFAULT_STATE, ...saved, drive: { ...DEFAULT_STATE.drive, ...(saved.drive || {}) } });
       })
       .catch(() => {})
       .finally(() => setReady(true));
@@ -43,7 +49,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     timer.current = setTimeout(() => setToastMsg(null), 1800);
   }, []);
 
-  return <Ctx.Provider value={{ S, ready, set, toast, toastMsg }}>{children}</Ctx.Provider>;
+  const saveRecipe = useCallback<Store['saveRecipe']>((r, newIng) => {
+    setS((s) => {
+      const exists = s.myRecipes.some((x) => x.id === r.id);
+      return {
+        ...s,
+        myIng: { ...s.myIng, ...newIng },
+        myRecipes: exists ? s.myRecipes.map((x) => (x.id === r.id ? r : x)) : [r, ...s.myRecipes],
+      };
+    });
+  }, []);
+
+  const deleteRecipe = useCallback((id: string) => {
+    setS((s) => ({
+      ...s,
+      myRecipes: s.myRecipes.filter((x) => x.id !== id),
+      plan: Object.fromEntries(Object.entries(s.plan).filter(([, v]) => v !== id)),
+    }));
+  }, []);
+
+  // Rend les recettes perso visibles par la logique (planning, listes, fraîcheur) avant le rendu des écrans.
+  setUserData(S.myRecipes, S.myIng);
+
+  return <Ctx.Provider value={{ S, ready, set, toast, toastMsg, saveRecipe, deleteRecipe }}>{children}</Ctx.Provider>;
 }
 
 export function useStore(): Store {
